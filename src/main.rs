@@ -4,7 +4,6 @@ use std::io::{Cursor, Read, Seek, SeekFrom, Write};
 
 mod ani;
 mod cur;
-use cur::CursorFile;
 use ani::AniFile;
 use image::{open, DynamicImage, GenericImageView, ImageBuffer, ImageDecoder, ImageReader};
 
@@ -23,15 +22,10 @@ fn main() -> std::io::Result<()> {
         let new_image = image.huerotate(i * 15);
         let (width, height) = new_image.dimensions();
         let image_data = encode_image(new_image);
-        let cursor_frame = CursorFrame::new(width, height, 0, 0, image_data);
-        let cursor_file = CursorFile::single(cursor_frame);
-        let mut  buf = Vec::new();
-        let mut cur = Cursor::new(&mut buf);
-        cursor_file.encode(&mut cur)?;
 
         let (hotspot_x,  hotspot_y) = HOTSPOT;
         let duration = Some(DURATION);
-        let aniframe = AniFrame::new(width, height, hotspot_x, hotspot_y, buf, duration);
+        let aniframe = AniFrame::new(width, height, hotspot_x, hotspot_y, image_data, duration);
         final_frames.push(aniframe);
     }
 
